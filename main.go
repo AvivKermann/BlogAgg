@@ -47,8 +47,10 @@ func main() {
 	// all the different handlers
 	v1Router.HandleFunc("/readiness", handlerReadiness)
 	v1Router.HandleFunc("/err", handlerErr)
-	v1Router.Get("/users", cfg.handlerGetUser)
+	v1Router.Get("/users", cfg.middlewareAuth(cfg.handlerGetUser))
 	v1Router.Post("/users", cfg.handlerCreateUser)
+	v1Router.Post("/feeds", cfg.middlewareAuth(cfg.handlerCreateFeed))
+
 	server := &http.Server{
 		Addr:    ":" + cfg.port,
 		Handler: router,

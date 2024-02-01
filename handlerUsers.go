@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -42,16 +41,8 @@ func (cfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) 
 	jsonResponse.ResponsWithJson(w, http.StatusOK, user)
 
 }
-func (cfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request) {
-
-	apiKey := stripPrefix(r.Header.Get("Authorization"))
-	fmt.Println(apiKey)
-	user, err := cfg.DB.GetUserByApikey(r.Context(), apiKey)
-	if err != nil {
-		jsonResponse.RespondWithError(w, http.StatusBadRequest, "invalid api key")
-		return
-	}
-	jsonResponse.ResponsWithJson(w, http.StatusOK, user)
+func (cfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	jsonResponse.ResponsWithJson(w, http.StatusOK, databaseUserToUser(user))
 
 }
 
