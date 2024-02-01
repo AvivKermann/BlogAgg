@@ -16,6 +16,7 @@ func (cfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
 		user, err := cfg.authenticateUser(apiKey, r.Context())
 		if err != nil {
 			http.Error(w, "Unauthorize", http.StatusUnauthorized)
+			return
 		}
 		handler(w, r, user)
 	}
@@ -27,6 +28,7 @@ func (cfg *apiConfig) authenticateUser(apiKey string, context context.Context) (
 	if err != nil {
 		return database.User{}, err
 	}
+
 	return user, nil
 }
 
