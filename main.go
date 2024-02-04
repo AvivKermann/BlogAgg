@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/AvivKermann/BlogAgg/internal/database"
 	"github.com/go-chi/chi/v5"
@@ -61,6 +62,7 @@ func main() {
 	}
 
 	fmt.Printf("server running on localhost:%v\n", cfg.port)
+	go startScraping(dbQuries, 10, time.Minute)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal("server crashed")
