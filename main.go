@@ -48,6 +48,7 @@ func main() {
 	v1Router.HandleFunc("/readiness", handlerReadiness)
 	v1Router.HandleFunc("/err", handlerErr)
 	v1Router.Get("/users", cfg.middlewareAuth(cfg.handlerGetUser))
+	v1Router.Get("/feeds", cfg.handlerGetAllFeeds)
 	v1Router.Post("/users", cfg.handlerCreateUser)
 	v1Router.Post("/feeds", cfg.middlewareAuth(cfg.handlerCreateFeed))
 

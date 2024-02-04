@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -18,6 +19,8 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 	decoder := json.NewDecoder(r.Body)
 	params := paramaters{}
 	err := decoder.Decode(&params)
+	fmt.Println(params)
+
 	if err != nil {
 		jsonResponse.RespondWithError(w, http.StatusBadRequest, "cannot decode feed parameters")
 		return
@@ -36,4 +39,19 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	jsonResponse.ResponsWithJson(w, http.StatusOK, databaseFeedToFeed(feed))
+}
+
+func (cfg *apiConfig) handlerGetAllFeeds(w http.ResponseWriter, r *http.Request) {
+
+	dbFeeds, err := cfg.DB.GetAllFeeds(r.Context())
+	if err != nil {
+		jsonResponse.RespondWithError(w, http.StatusBadRequest, "cannot get feeds")
+		return
+	}
+	feeds := []Feed{}
+	for _, dbFeed := range dbFeeds {
+		feeds = append(feeds, databaseFeedToFeed(dbFeed))
+	}
+	jsonResponse.ResponsWithJson(w, http.StatusOK, feeds)
+
 }
