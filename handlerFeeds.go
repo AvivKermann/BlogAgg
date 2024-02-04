@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -19,7 +18,6 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 	decoder := json.NewDecoder(r.Body)
 	params := paramaters{}
 	err := decoder.Decode(&params)
-	fmt.Println(params)
 
 	if err != nil {
 		jsonResponse.RespondWithError(w, http.StatusBadRequest, "cannot decode feed parameters")
@@ -38,7 +36,24 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 		jsonResponse.RespondWithError(w, http.StatusBadRequest, "cannot create feed")
 		return
 	}
-	jsonResponse.ResponsWithJson(w, http.StatusOK, databaseFeedToFeed(feed))
+	feedFollow, err := cfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		FeedID:    feed.ID,
+		UserID:    feed.UserID,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	})
+	if err != nil {
+		jsonResponse.RespondWithError(w, http.StatusBadRequest, "cannot create feed follow")
+		return
+	}
+	jsonResponse.ResponsWithJson(w, http.StatusOK, struct {
+		Feed        Feed       `json:"feed"`
+		Feed_follow FeedFollow `json:"feed_follow"`
+	}{
+		Feed:        databaseFeedToFeed(feed),
+		Feed_follow: databaseFeedFollowToFeedFollow(feedFollow),
+	})
 }
 
 func (cfg *apiConfig) handlerGetAllFeeds(w http.ResponseWriter, r *http.Request) {
