@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -56,7 +55,7 @@ func (q *Queries) CreatePosts(ctx context.Context, arg CreatePostsParams) (Post,
 }
 
 const getPostsByUserID = `-- name: GetPostsByUserID :many
-SELECT posts.id, posts.created_at, posts.updated_at, title, posts.url, description, published_at, feed_id, feed.id, feed.created_at, feed.updated_at, feed.name, feed.url, user_id, last_fetched_at, users.id, users.created_at, users.updated_at, users.name, api_key FROM posts
+SELECT posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, posts.description, posts.published_at, posts.feed_id FROM posts
 INNER JOIN feed ON feed.id = posts.feed_id
 INNER JOIN users ON users.id = feed.user_id
 WHERE users.id = $1
@@ -69,38 +68,15 @@ type GetPostsByUserIDParams struct {
 	Limit int32
 }
 
-type GetPostsByUserIDRow struct {
-	ID            uuid.UUID
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	Title         string
-	Url           string
-	Description   string
-	PublishedAt   time.Time
-	FeedID        uuid.UUID
-	ID_2          uuid.UUID
-	CreatedAt_2   time.Time
-	UpdatedAt_2   time.Time
-	Name          string
-	Url_2         string
-	UserID        uuid.UUID
-	LastFetchedAt sql.NullTime
-	ID_3          uuid.UUID
-	CreatedAt_3   time.Time
-	UpdatedAt_3   time.Time
-	Name_2        string
-	ApiKey        string
-}
-
-func (q *Queries) GetPostsByUserID(ctx context.Context, arg GetPostsByUserIDParams) ([]GetPostsByUserIDRow, error) {
+func (q *Queries) GetPostsByUserID(ctx context.Context, arg GetPostsByUserIDParams) ([]Post, error) {
 	rows, err := q.db.QueryContext(ctx, getPostsByUserID, arg.ID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetPostsByUserIDRow
+	var items []Post
 	for rows.Next() {
-		var i GetPostsByUserIDRow
+		var i Post
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedAt,
@@ -110,18 +86,6 @@ func (q *Queries) GetPostsByUserID(ctx context.Context, arg GetPostsByUserIDPara
 			&i.Description,
 			&i.PublishedAt,
 			&i.FeedID,
-			&i.ID_2,
-			&i.CreatedAt_2,
-			&i.UpdatedAt_2,
-			&i.Name,
-			&i.Url_2,
-			&i.UserID,
-			&i.LastFetchedAt,
-			&i.ID_3,
-			&i.CreatedAt_3,
-			&i.UpdatedAt_3,
-			&i.Name_2,
-			&i.ApiKey,
 		); err != nil {
 			return nil, err
 		}
