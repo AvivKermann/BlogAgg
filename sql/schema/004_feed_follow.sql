@@ -1,10 +1,10 @@
 -- +goose Up
 CREATE TABLE feed_follow(
     id UUID PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
+    feed_id UUID NOT NULL REFERENCES feed(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    feed_id UUID NOT NULL REFERENCES feed(id) ON DELETE CASCADE
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
     );
 
 -- +goose Down

@@ -51,6 +51,7 @@ func main() {
 	v1Router.Get("/feeds", cfg.handlerGetAllFeeds)
 	v1Router.Post("/users", cfg.handlerCreateUser)
 	v1Router.Post("/feeds", cfg.middlewareAuth(cfg.handlerCreateFeed))
+	v1Router.Post("/feed_follows", cfg.middlewareAuth(cfg.handlerCreateFeedFollow))
 
 	server := &http.Server{
 		Addr:    ":" + cfg.port,

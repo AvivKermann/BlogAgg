@@ -13,34 +13,34 @@ import (
 )
 
 const createFeedFollow = `-- name: CreateFeedFollow :one
-INSERT INTO feed_follow(id, created_at, updated_at, user_id, feed_id)
+INSERT INTO feed_follow(id, feed_id, user_id,created_at,updated_at)
 VALUES($1,$2,$3,$4,$5)
-RETURNING id, created_at, updated_at, user_id, feed_id
+RETURNING id, feed_id, user_id, created_at, updated_at
 `
 
 type CreateFeedFollowParams struct {
 	ID        uuid.UUID
+	FeedID    uuid.UUID
+	UserID    uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    uuid.UUID
-	FeedID    uuid.UUID
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (FeedFollow, error) {
 	row := q.db.QueryRowContext(ctx, createFeedFollow,
 		arg.ID,
+		arg.FeedID,
+		arg.UserID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
-		arg.UserID,
-		arg.FeedID,
 	)
 	var i FeedFollow
 	err := row.Scan(
 		&i.ID,
+		&i.FeedID,
+		&i.UserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.UserID,
-		&i.FeedID,
 	)
 	return i, err
 }
@@ -56,7 +56,7 @@ func (q *Queries) DeleteFeedFollowByID(ctx context.Context, id uuid.UUID) error 
 }
 
 const getFeedFollowByID = `-- name: GetFeedFollowByID :one
-SELECT id, created_at, updated_at, user_id, feed_id FROM feed_follow
+SELECT id, feed_id, user_id, created_at, updated_at FROM feed_follow
 WHERE feed_follow.id = $1
 `
 
@@ -65,10 +65,10 @@ func (q *Queries) GetFeedFollowByID(ctx context.Context, id uuid.UUID) (FeedFoll
 	var i FeedFollow
 	err := row.Scan(
 		&i.ID,
+		&i.FeedID,
+		&i.UserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.UserID,
-		&i.FeedID,
 	)
 	return i, err
 }
