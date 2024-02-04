@@ -10,3 +10,7 @@ WHERE feed_follow.id = $1;
 -- name: DeleteFeedFollowByID :exec
 DELETE FROM feed_follow
 WHERE id = $1;
+
+-- name: GetFeedFollowByUserID :many
+SELECT * FROM feed_follow
+WHERE user_id = $1;
